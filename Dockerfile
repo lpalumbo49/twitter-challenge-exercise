@@ -7,7 +7,7 @@ RUN go mod download && go mod verify
 
 # Copying source files and compiling them
 COPY . .
-RUN CGO_ENABLED=0 GOOS=linux go build -o /main ./src/api/main.go
+RUN CGO_ENABLED=0 GOOS=linux go build -o /main ./cmd/api/main.go
 
 # Running binary
 CMD ["/main"]
