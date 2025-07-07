@@ -30,8 +30,9 @@ func NewRouter(userHandler UserHandler, tweetHandler TweetHandler) (*Router, err
 	routerGroup.POST("/login", nil)
 
 	// TODO LP: estas operaciones deben usar jwt
-	// routerGroup.GET("/user/:id", userHandler.GetUserByID)
-	// routerGroup.PUT("/user/:id", userHandler.UpdateUser)
+	// TODO LP: search? auth?
+	routerGroup.GET("/user/:id", userHandler.GetUserByID)
+	routerGroup.PUT("/user/:id", userHandler.UpdateUser)
 
 	routerGroup.POST("/tweet", tweetHandler.CreateTweet)
 	// routerGroup.GET("/tweet/:id", tweetHandler.GetTweetByID)

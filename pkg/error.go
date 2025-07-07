@@ -5,6 +5,8 @@ import (
 	"strings"
 )
 
+// TODO LP: switch con las conversiones de errores
+
 // --------------------------------------------------------------------------------
 type StructValidationError struct {
 	errors []string
@@ -91,4 +93,32 @@ func ParseBusinessError(err error) (bool, BusinessError) {
 
 	ok := errors.As(err, &bErr)
 	return ok, bErr
+}
+
+// --------------------------------------------------------------------------------
+type ServerError struct {
+	message string
+}
+
+func (e ServerError) Error() string {
+	return e.message
+}
+
+func NewServerError(message string) error {
+	return ServerError{
+		message: message,
+	}
+}
+
+func IsServerError(err error) bool {
+	var sErr ServerError
+
+	return errors.As(err, &sErr)
+}
+
+func ParseServerError(err error) (bool, ServerError) {
+	var sErr ServerError
+
+	ok := errors.As(err, &sErr)
+	return ok, sErr
 }

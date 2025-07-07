@@ -20,6 +20,25 @@ func ReturnHttpError(ctx *gin.Context, err HttpError) {
 }
 
 // --------------------------------------------------------------------------------
+type BadRequestError struct {
+	Message string `json:"message"`
+}
+
+func NewBadRequestError(friendlyMessage string) HttpError {
+	return BadRequestError{
+		Message: friendlyMessage,
+	}
+}
+
+func (e BadRequestError) GetStatusCode() int {
+	return http.StatusBadRequest
+}
+
+func (e BadRequestError) Error() string {
+	return e.Message
+}
+
+// --------------------------------------------------------------------------------
 type RequestValidationError struct {
 	Errors []string `json:"errors"`
 }
@@ -55,4 +74,23 @@ func NewInternalServerError(friendlyMessage string, err error) HttpError {
 
 func (e InternalServerError) GetStatusCode() int {
 	return http.StatusInternalServerError
+}
+
+// --------------------------------------------------------------------------------
+type ForbiddenError struct {
+	Message string `json:"message"`
+}
+
+func NewForbiddenError(friendlyMessage string) HttpError {
+	return ForbiddenError{
+		Message: friendlyMessage,
+	}
+}
+
+func (e ForbiddenError) GetStatusCode() int {
+	return http.StatusForbidden
+}
+
+func (e ForbiddenError) Error() string {
+	return e.Message
 }

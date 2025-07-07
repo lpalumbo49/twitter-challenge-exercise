@@ -1,5 +1,31 @@
 services:
   twitter-challenge-exercise:
+    depends_on:
+      - db
     build: .
+
+    # These should be handled as secrets, outside the scope of this application
+    environment:
+      - DATABASE_HOST=localhost
+      - DATABASE_PORT=3306
+      - DATABASE_USER=root
+      - DATABASE_PASSWORD=password
+      - DATABASE_NAME=twitter_db
     ports:
       - "8080:8080"
+
+  db:
+    image: mysql:9.3
+    restart: always
+    environment:
+      MYSQL_DATABASE: 'twitter_db'
+      MYSQL_ROOT_PASSWORD: 'password'
+    ports:
+      - '3306:3306'
+    expose:
+      - '3306'
+    volumes:
+      - twitter-db-volume:/var/lib/mysql
+
+volumes:
+  twitter-db-volume:

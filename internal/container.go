@@ -3,6 +3,7 @@ package internal
 import (
 	"twitter-challenge-exercise/internal/adapter/handler/http"
 	"twitter-challenge-exercise/internal/adapter/repository/database"
+	"twitter-challenge-exercise/internal/config"
 	"twitter-challenge-exercise/internal/core/service"
 	"twitter-challenge-exercise/pkg/mysql"
 )
@@ -13,10 +14,9 @@ type Container struct {
 }
 
 func StartContainer() (*Container, error) {
-	// TODO LP: config.MySQL (env!)
-	db, err := mysql.NewDB()
+	// TODO LP: config.MySQL (env! mejor)
+	db, err := mysql.NewDB(config.Configuration{})
 	if err != nil {
-		// TODO: error handling!
 		return nil, err
 	}
 

@@ -1,7 +1,9 @@
 package http
 
 import (
+	"fmt"
 	"net/http"
+	"strconv"
 	"twitter-challenge-exercise/internal/adapter/handler/http/dto"
 	"twitter-challenge-exercise/internal/core/port"
 	"twitter-challenge-exercise/pkg"
@@ -39,6 +41,11 @@ func (h *UserHandler) CreateUser(ctx *gin.Context) {
 
 	user, err := h.service.CreateUser(ctx, dto.MapCreateUserRequestToUser(request))
 	if err != nil {
+		if pkg.IsBusinessError(err) {
+			pkg.ReturnHttpError(ctx, pkg.NewBadRequestError(err.Error()))
+			return
+		}
+
 		pkg.ReturnHttpError(ctx, pkg.NewInternalServerError("error creating new user", err))
 		return
 	}
@@ -46,4 +53,68 @@ func (h *UserHandler) CreateUser(ctx *gin.Context) {
 	ctx.JSON(http.StatusCreated, dto.MapUserToCreateUserResponse(user))
 }
 
-// TODO LP: el resto de los métodos
+func (h *UserHandler) UpdateUser(ctx *gin.Context) {
+	var request dto.UpdateUserRequest
+
+	idParam := ctx.Param("id")
+
+	userID, err := strconv.ParseUint(idParam, 10, 64)
+	if err != nil {
+		pkg.ReturnHttpError(ctx, pkg.NewBadRequestError("invalid user_id"))
+		return
+	}
+
+	// TODO LP: mmmm, si no le mando username?
+	if err := ctx.ShouldBindJSON(&request); err != nil {
+		pkg.ReturnHttpError(ctx, pkg.NewInternalServerError("error in update user request binding", err))
+		return
+	}
+
+	if err := pkg.ValidateStruct(request); err != nil {
+		if ok, valErr := pkg.ParseStructValidationError(err); ok {
+			pkg.ReturnHttpError(ctx, pkg.NewRequestValidationError(valErr.GetErrors()))
+			return
+		}
+
+		pkg.ReturnHttpError(ctx, pkg.NewInternalServerError("error in update user request validation", err))
+		return
+	}
+
+	if userID != request.ID {
+		pkg.ReturnHttpError(ctx, pkg.NewForbiddenError("mismatch between user_id and request user_id"))
+		return
+	}
+
+	// TODO LP: jwt user_id mismatch
+
+	user, err := h.service.UpdateUser(ctx, dto.MapUpdateUserRequestToUser(request))
+	if err != nil {
+		if !pkg.IsServerError(err) {
+			pkg.ReturnHttpError(ctx, pkg.NewBadRequestError(err.Error()))
+			return
+		}
+
+		pkg.ReturnHttpError(ctx, pkg.NewInternalServerError("error updating user", err))
+		return
+	}
+
+	ctx.JSON(http.StatusOK, dto.MapUserToUpdateUserResponse(user))
+}
+
+func (h *UserHandler) GetUserByID(ctx *gin.Context) {
+	idParam := ctx.Param("id")
+
+	userID, err := strconv.ParseUint(idParam, 10, 64)
+	if err != nil {
+		pkg.ReturnHttpError(ctx, pkg.NewBadRequestError("invalid user_id"))
+		return
+	}
+
+	user, err := h.service.GetUserByID(ctx, userID)
+	if err != nil {
+		pkg.ReturnHttpError(ctx, pkg.NewInternalServerError(fmt.Sprintf("error searching for user_id %d", userID), err))
+		return
+	}
+
+	ctx.JSON(http.StatusOK, dto.MapUserToCreateUserResponse(user))
+}
