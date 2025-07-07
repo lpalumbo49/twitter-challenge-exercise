@@ -20,11 +20,15 @@ func StartContainer() (*Container, error) {
 		return nil, err
 	}
 
+	userRepository := database.NewUserRepository(db)
+	userService := service.NewUserService(userRepository)
+	userHandler := http.NewUserHandler(userService)
+
 	tweetRepository := database.NewTweetRepository(db)
 	tweetService := service.NewTweetService(tweetRepository)
 	tweetHandler := http.NewTweetHandler(tweetService)
 
-	router, err := http.NewRouter(*tweetHandler)
+	router, err := http.NewRouter(*userHandler, *tweetHandler)
 	if err != nil {
 		return nil, err
 	}
