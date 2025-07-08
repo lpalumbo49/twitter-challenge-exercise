@@ -15,9 +15,10 @@ import (
 const (
 	insertUserQuery           = "INSERT INTO user(name, surname, email, password, username, created_at, updated_at) VALUES(?, ?, ?, ?, ?, ?, ?)"
 	updateUserQuery           = "UPDATE user SET name = ?, surname = ?, username = ?, updated_at = ? WHERE id = ?"
-	selectUserByIDQuery       = "SELECT id, name, surname, email, username, created_at, updated_at FROM user WHERE id = ?" // No password querying!
-	selectUserByEmailQuery    = "SELECT id, name, surname, email, username, created_at, updated_at FROM user WHERE email = ?"
+	selectUserByIDQuery       = "SELECT id, name, surname, email, username, created_at, updated_at FROM user WHERE id = ?" // No password querying! This method is public
+	selectUserByEmailQuery    = "SELECT id, name, surname, email, username, password, created_at, updated_at FROM user WHERE email = ?"
 	selectUserByUsernameQuery = "SELECT id, name, surname, email, username, created_at, updated_at FROM user WHERE username = ?"
+	selectUsersQuery          = "SELECT id, name, surname, email, username, created_at, updated_at FROM user"
 )
 
 type userRepository struct {
@@ -69,10 +70,10 @@ func (u *userRepository) GetUserByEmail(ctx context.Context, email string) (doma
 
 	row := u.db.QueryRow(selectUserByEmailQuery, email)
 
-	err := row.Scan(&user.ID, &user.Name, &user.Surname, &user.Email, &user.Username, &user.CreatedAt, &user.UpdatedAt)
+	err := row.Scan(&user.ID, &user.Name, &user.Surname, &user.Email, &user.Username, &user.Password, &user.CreatedAt, &user.UpdatedAt)
 	if err != nil {
 		if errors.Is(err, sql.ErrNoRows) {
-			return user, pkg.NewNotFoundError(fmt.Sprintf("user with email %s not found", email))
+			return user, pkg.NewEntityNotFoundError(fmt.Sprintf("user with email %s not found", email))
 		}
 
 		return user, err
@@ -89,7 +90,7 @@ func (u *userRepository) GetUserByID(ctx context.Context, userID uint64) (domain
 	err := row.Scan(&user.ID, &user.Name, &user.Surname, &user.Email, &user.Username, &user.CreatedAt, &user.UpdatedAt)
 	if err != nil {
 		if errors.Is(err, sql.ErrNoRows) {
-			return user, pkg.NewNotFoundError(fmt.Sprintf("user_id %d not found", userID))
+			return user, pkg.NewEntityNotFoundError(fmt.Sprintf("user_id %d not found", userID))
 		}
 
 		return user, err
@@ -106,7 +107,7 @@ func (u *userRepository) GetUserByUsername(ctx context.Context, username string)
 	err := row.Scan(&user.ID, &user.Name, &user.Surname, &user.Email, &user.Username, &user.CreatedAt, &user.UpdatedAt)
 	if err != nil {
 		if errors.Is(err, sql.ErrNoRows) {
-			return user, pkg.NewNotFoundError(fmt.Sprintf("user with username %s not found", username))
+			return user, pkg.NewEntityNotFoundError(fmt.Sprintf("user with username %s not found", username))
 		}
 
 		return user, err
@@ -116,6 +117,24 @@ func (u *userRepository) GetUserByUsername(ctx context.Context, username string)
 }
 
 func (u *userRepository) SearchUsers() ([]domain.User, error) {
-	//TODO implement me
-	panic("implement me")
+	var users []domain.User
+
+	rows, err := u.db.Query(selectUsersQuery)
+	if err != nil {
+		return users, err
+	}
+
+	defer rows.Close()
+	for rows.Next() {
+		var user domain.User
+
+		err = rows.Scan(&user.ID, &user.Name, &user.Surname, &user.Email, &user.Username, &user.CreatedAt, &user.UpdatedAt)
+		if err != nil {
+			return users, err
+		}
+
+		users = append(users, user)
+	}
+
+	return users, nil
 }

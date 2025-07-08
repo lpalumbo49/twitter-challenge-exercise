@@ -1,6 +1,7 @@
 package pkg
 
 import (
+	"log/slog"
 	"net/http"
 	"strings"
 
@@ -13,8 +14,14 @@ type HttpError interface {
 }
 
 func ReturnHttpError(ctx *gin.Context, err HttpError) {
-	// TODO LP: log!
-	println(err.Error())
+	// This is a simplified example of handling different logging levels.
+	// The logger package should be initialized at the start of the program, based on configuration
+	switch err.GetStatusCode() {
+	case http.StatusInternalServerError:
+		slog.Error(err.Error())
+	default:
+		slog.Warn(err.Error())
+	}
 
 	ctx.JSON(err.GetStatusCode(), err)
 }
@@ -92,5 +99,24 @@ func (e ForbiddenError) GetStatusCode() int {
 }
 
 func (e ForbiddenError) Error() string {
+	return e.Message
+}
+
+// --------------------------------------------------------------------------------
+type NotFoundError struct {
+	Message string `json:"message"`
+}
+
+func NewNotFoundError(friendlyMessage string) HttpError {
+	return NotFoundError{
+		Message: friendlyMessage,
+	}
+}
+
+func (e NotFoundError) GetStatusCode() int {
+	return http.StatusNotFound
+}
+
+func (e NotFoundError) Error() string {
 	return e.Message
 }

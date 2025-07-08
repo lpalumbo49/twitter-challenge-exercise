@@ -21,7 +21,7 @@ func NewUserService(repository port.UserRepository) port.UserService {
 
 func (u *userService) CreateUser(ctx context.Context, user domain.User) (domain.User, error) {
 	existingUser, err := u.repository.GetUserByEmail(ctx, user.Email)
-	if err != nil && !pkg.IsNotFoundError(err) {
+	if err != nil && !pkg.IsEntityNotFoundError(err) {
 		return user, err
 	}
 
@@ -30,7 +30,7 @@ func (u *userService) CreateUser(ctx context.Context, user domain.User) (domain.
 	}
 
 	existingUser, err = u.repository.GetUserByUsername(ctx, user.Username)
-	if err != nil && !pkg.IsNotFoundError(err) {
+	if err != nil && !pkg.IsEntityNotFoundError(err) {
 		return user, err
 	}
 
@@ -56,7 +56,7 @@ func (u *userService) CreateUser(ctx context.Context, user domain.User) (domain.
 
 func (u *userService) UpdateUser(ctx context.Context, user domain.User) (domain.User, error) {
 	existingUser, err := u.repository.GetUserByUsername(ctx, user.Username)
-	if err != nil && !pkg.IsNotFoundError(err) {
+	if err != nil && !pkg.IsEntityNotFoundError(err) {
 		return user, err
 	}
 
@@ -85,6 +85,10 @@ func (u *userService) UpdateUser(ctx context.Context, user domain.User) (domain.
 
 func (u *userService) GetUserByID(ctx context.Context, userID uint64) (domain.User, error) {
 	return u.repository.GetUserByID(ctx, userID)
+}
+
+func (u *userService) GetUserByEmail(ctx context.Context, email string) (domain.User, error) {
+	return u.repository.GetUserByEmail(ctx, email)
 }
 
 func (u *userService) SearchUsers(ctx context.Context) ([]domain.User, error) {

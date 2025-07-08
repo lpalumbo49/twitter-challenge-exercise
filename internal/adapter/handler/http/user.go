@@ -64,7 +64,6 @@ func (h *UserHandler) UpdateUser(ctx *gin.Context) {
 		return
 	}
 
-	// TODO LP: mmmm, si no le mando username?
 	if err := ctx.ShouldBindJSON(&request); err != nil {
 		pkg.ReturnHttpError(ctx, pkg.NewInternalServerError("error in update user request binding", err))
 		return
@@ -85,7 +84,10 @@ func (h *UserHandler) UpdateUser(ctx *gin.Context) {
 		return
 	}
 
-	// TODO LP: jwt user_id mismatch
+	if userID != ctx.GetUint64("user_id") {
+		pkg.ReturnHttpError(ctx, pkg.NewForbiddenError("user_id not authorized"))
+		return
+	}
 
 	user, err := h.service.UpdateUser(ctx, dto.MapUpdateUserRequestToUser(request))
 	if err != nil {
@@ -112,9 +114,26 @@ func (h *UserHandler) GetUserByID(ctx *gin.Context) {
 
 	user, err := h.service.GetUserByID(ctx, userID)
 	if err != nil {
+		if pkg.IsEntityNotFoundError(err) {
+			pkg.ReturnHttpError(ctx, pkg.NewNotFoundError(err.Error()))
+			return
+		}
+
 		pkg.ReturnHttpError(ctx, pkg.NewInternalServerError(fmt.Sprintf("error searching for user id %d", userID), err))
 		return
 	}
 
 	ctx.JSON(http.StatusOK, dto.MapUserToUserResponse(user))
+}
+
+func (h *UserHandler) GetUsers(ctx *gin.Context) {
+	users, err := h.service.SearchUsers(ctx)
+	if err != nil {
+		pkg.ReturnHttpError(ctx, pkg.NewInternalServerError("error searching for users", err))
+		return
+	}
+
+	ctx.JSON(http.StatusOK, dto.UsersResponse{
+		Users: dto.MapUsersToUserResponses(users),
+	})
 }

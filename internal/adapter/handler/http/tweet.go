@@ -39,7 +39,10 @@ func (h *TweetHandler) CreateTweet(ctx *gin.Context) {
 		return
 	}
 
-	// TODO LP: validación de que sea el usuario correcto. vendría en el ctx (jwt)
+	if request.UserID != ctx.GetUint64("user_id") {
+		pkg.ReturnHttpError(ctx, pkg.NewForbiddenError("user_id not authorized"))
+		return
+	}
 
 	tweet, err := h.service.CreateTweet(ctx, dto.MapCreateTweetRequestToTweet(request))
 	if err != nil {
@@ -86,7 +89,10 @@ func (h *TweetHandler) UpdateTweet(ctx *gin.Context) {
 		return
 	}
 
-	// TODO LP: jwt user_id mismatch
+	if userID != ctx.GetUint64("user_id") {
+		pkg.ReturnHttpError(ctx, pkg.NewForbiddenError("user_id not authorized"))
+		return
+	}
 
 	tweet, err := h.service.UpdateTweet(ctx, dto.MapUpdateTweetRequestToTweet(request))
 	if err != nil {
@@ -111,12 +117,10 @@ func (h *TweetHandler) GetTweetByID(ctx *gin.Context) {
 		return
 	}
 
-	// TODO LP: jwt user_id mismatch
-
 	tweet, err := h.service.GetTweetByID(ctx, tweetID)
 	if err != nil {
-		if pkg.IsNotFoundError(err) {
-			pkg.ReturnHttpError(ctx, pkg.NewBadRequestError(err.Error())) // TODO LP: esto es un 404!
+		if pkg.IsEntityNotFoundError(err) {
+			pkg.ReturnHttpError(ctx, pkg.NewNotFoundError(err.Error()))
 			return
 		}
 

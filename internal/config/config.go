@@ -13,9 +13,12 @@ const (
 	databasePassword = "DATABASE_PASSWORD"
 	databaseName     = "DATABASE_NAME"
 
-	databaseMaxIdleConns        = 25
-	databaseMaxOpenConns        = 50
-	databaseConnMaxLifetimeSecs = 300
+	databaseMaxIdleConns    = 25
+	databaseMaxOpenConns    = 50
+	databaseConnMaxLifetime = 300 * time.Second
+
+	jwtTokenSecret    = "JWT_TOKEN_SECRET"
+	jwtExpirationTime = time.Hour * 24
 )
 
 type Configuration struct{}
@@ -53,6 +56,14 @@ func (*Configuration) GetDatabaseMaxOpenConns() int {
 	return databaseMaxOpenConns
 }
 
-func (*Configuration) GetDatabaseConnMaxLifetimeSecs() time.Duration {
-	return databaseConnMaxLifetimeSecs * time.Second
+func (*Configuration) GetDatabaseConnMaxLifetime() time.Duration {
+	return databaseConnMaxLifetime
+}
+
+func (*Configuration) GetJwtTokenSecret() string {
+	return os.Getenv(jwtTokenSecret)
+}
+
+func (*Configuration) GetJwtExpirationTime() time.Duration {
+	return jwtExpirationTime
 }

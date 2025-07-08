@@ -28,7 +28,7 @@ func (f *followerService) CreateFollower(ctx context.Context, follower domain.Fo
 	// Check if followed user_id exists (double check with table foreign key)
 	_, err := f.userService.GetUserByID(ctx, follower.FollowedByUserID)
 	if err != nil {
-		if pkg.IsNotFoundError(err) {
+		if pkg.IsEntityNotFoundError(err) {
 			return follower, pkg.NewBusinessError("followed_by_user_id does not exist")
 		}
 
@@ -36,7 +36,7 @@ func (f *followerService) CreateFollower(ctx context.Context, follower domain.Fo
 	}
 
 	existingFollower, err := f.repository.GetFollowerByIDs(ctx, follower.UserID, follower.FollowedByUserID)
-	if err != nil && !pkg.IsNotFoundError(err) {
+	if err != nil && !pkg.IsEntityNotFoundError(err) {
 		return follower, err
 	}
 

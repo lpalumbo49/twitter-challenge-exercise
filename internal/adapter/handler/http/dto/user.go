@@ -23,6 +23,10 @@ type UserResponse struct {
 	UpdatedAt time.Time `json:"updated_at"`
 }
 
+type UsersResponse struct {
+	Users []UserResponse `json:"users"`
+}
+
 func MapCreateUserRequestToUser(request CreateUserRequest) domain.User {
 	return domain.User{
 		Name:     request.Name,
@@ -43,6 +47,16 @@ func MapUserToUserResponse(user domain.User) UserResponse {
 		CreatedAt: user.CreatedAt,
 		UpdatedAt: user.UpdatedAt,
 	}
+}
+
+func MapUsersToUserResponses(users []domain.User) []UserResponse {
+	userResponses := make([]UserResponse, 0)
+
+	for _, user := range users {
+		userResponses = append(userResponses, MapUserToUserResponse(user))
+	}
+
+	return userResponses
 }
 
 // --------------------------------------------------------------------------------

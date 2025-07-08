@@ -36,7 +36,10 @@ func (h *FollowerHandler) CreateFollower(ctx *gin.Context) {
 		return
 	}
 
-	// TODO LP: validación de que sea el usuario correcto. vendría en el ctx (jwt)
+	if request.UserID != ctx.GetUint64("user_id") {
+		pkg.ReturnHttpError(ctx, pkg.NewForbiddenError("user_id not authorized"))
+		return
+	}
 
 	follower, err := h.service.CreateFollower(ctx, dto.MapCreateFollowerRequestToFollower(request))
 	if err != nil {
