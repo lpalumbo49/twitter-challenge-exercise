@@ -32,7 +32,7 @@ func NewDB(config config.Configuration) (*DB, error) {
 	db.SetMaxOpenConns(config.GetDatabaseMaxOpenConns())
 	db.SetMaxIdleConns(config.GetDatabaseMaxIdleConns())
 
-	db.SetConnMaxLifetime(config.GetDatabaseConnMaxLifetimeSecs())
+	db.SetConnMaxLifetime(config.GetDatabaseConnMaxLifetime())
 
 	return &DB{db}, nil
 }

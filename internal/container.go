@@ -5,24 +5,31 @@ import (
 	"twitter-challenge-exercise/internal/adapter/repository/database"
 	"twitter-challenge-exercise/internal/config"
 	"twitter-challenge-exercise/internal/core/service"
+	"twitter-challenge-exercise/pkg"
 	"twitter-challenge-exercise/pkg/mysql"
 )
 
 type Container struct {
-	// TODO: acá van los puntos de entrada de todo (handlers, de adapter) revisar igual el acoplamiento?
 	router http.Router
 }
 
 func StartContainer() (*Container, error) {
-	// TODO LP: config.MySQL (env! mejor)
-	db, err := mysql.NewDB(config.Configuration{})
+	// Here we could choose different configuration files, based on environment
+	cfg := config.Configuration{}
+
+	db, err := mysql.NewDB(cfg)
 	if err != nil {
 		return nil, err
 	}
 
+	pkg.InitializeJWT(cfg.GetJwtTokenSecret(), cfg.GetJwtExpirationTime())
+
 	userRepository := database.NewUserRepository(db)
 	userService := service.NewUserService(userRepository)
 	userHandler := http.NewUserHandler(userService)
+
+	loginService := service.NewLoginService(userService)
+	loginHandler := http.NewLoginHandler(loginService)
 
 	tweetRepository := database.NewTweetRepository(db)
 	tweetService := service.NewTweetService(tweetRepository)
@@ -32,10 +39,11 @@ func StartContainer() (*Container, error) {
 	followerService := service.NewFollowerService(followerRepository, userService)
 	followerHandler := http.NewFollowerHandler(followerService)
 
-	router, err := http.NewRouter(*userHandler, *tweetHandler, *followerHandler)
-	if err != nil {
-		return nil, err
-	}
+	timelineRepository := database.NewTimelineRepository(db)
+	timelineService := service.NewTimelineService(timelineRepository)
+	timelineHandler := http.NewTimelineHandler(timelineService)
+
+	router := http.NewRouter(*loginHandler, *userHandler, *tweetHandler, *followerHandler, *timelineHandler)
 
 	return &Container{
 		router: *router,

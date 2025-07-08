@@ -5,8 +5,6 @@ import (
 	"strings"
 )
 
-// TODO LP: switch con las conversiones de errores
-
 // --------------------------------------------------------------------------------
 type StructValidationError struct {
 	errors []string
@@ -40,28 +38,28 @@ func NewStructValidationError(errors []string) error {
 }
 
 // --------------------------------------------------------------------------------
-type NotFoundError struct {
+type EntityNotFoundError struct {
 	message string
 }
 
-func (e NotFoundError) Error() string {
+func (e EntityNotFoundError) Error() string {
 	return e.message
 }
 
-func NewNotFoundError(message string) error {
-	return NotFoundError{
+func NewEntityNotFoundError(message string) error {
+	return EntityNotFoundError{
 		message: message,
 	}
 }
 
-func IsNotFoundError(err error) bool {
-	var nfErr NotFoundError
+func IsEntityNotFoundError(err error) bool {
+	var nfErr EntityNotFoundError
 
 	return errors.As(err, &nfErr)
 }
 
-func ParseNotFoundError(err error) (bool, NotFoundError) {
-	var nfErr NotFoundError
+func ParseEntityNotFoundError(err error) (bool, EntityNotFoundError) {
+	var nfErr EntityNotFoundError
 
 	ok := errors.As(err, &nfErr)
 	return ok, nfErr

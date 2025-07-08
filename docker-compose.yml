@@ -11,6 +11,7 @@ services:
       - DATABASE_USER=root
       - DATABASE_PASSWORD=password
       - DATABASE_NAME=twitter_db
+      - JWT_TOKEN_SECRET=this_is_a_secret
     ports:
       - "8080:8080"
 

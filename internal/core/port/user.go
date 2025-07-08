@@ -9,6 +9,7 @@ type UserService interface {
 	CreateUser(ctx context.Context, user domain.User) (domain.User, error)
 	UpdateUser(ctx context.Context, user domain.User) (domain.User, error)
 	GetUserByID(ctx context.Context, userID uint64) (domain.User, error)
+	GetUserByEmail(ctx context.Context, email string) (domain.User, error)
 	SearchUsers(ctx context.Context) ([]domain.User, error)
 }
 

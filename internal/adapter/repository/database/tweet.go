@@ -69,7 +69,7 @@ func (t *tweetRepository) GetTweetByID(ctx context.Context, tweetID uint64) (dom
 	err := row.Scan(&tweet.ID, &tweet.UserID, &tweet.Text, &tweet.CreatedAt, &tweet.UpdatedAt)
 	if err != nil {
 		if errors.Is(err, sql.ErrNoRows) {
-			return tweet, pkg.NewNotFoundError(fmt.Sprintf("tweet_id %d not found", tweetID))
+			return tweet, pkg.NewEntityNotFoundError(fmt.Sprintf("tweet_id %d not found", tweetID))
 		}
 
 		return tweet, err

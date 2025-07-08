@@ -48,7 +48,7 @@ func (f *followerRepository) GetFollowerByIDs(ctx context.Context, userID, follo
 	err := row.Scan(&follower.UserID, &follower.FollowedByUserID, &follower.CreatedAt)
 	if err != nil {
 		if errors.Is(err, sql.ErrNoRows) {
-			return follower, pkg.NewNotFoundError(fmt.Sprintf("follower with user_id %d and followed_by_user_id %d not found", userID, followedByUserID))
+			return follower, pkg.NewEntityNotFoundError(fmt.Sprintf("follower with user_id %d and followed_by_user_id %d not found", userID, followedByUserID))
 		}
 
 		return follower, err
