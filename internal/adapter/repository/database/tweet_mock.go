@@ -24,3 +24,13 @@ func (t *tweetMockRepository) CreateTweet(ctx context.Context, tweet domain.Twee
 
 	return responseTweet, err
 }
+
+func (t *tweetMockRepository) UpdateTweet(ctx context.Context, tweet domain.Tweet) (domain.Tweet, error) {
+	//TODO implement me
+	panic("implement me")
+}
+
+func (t *tweetMockRepository) GetTweetByID(ctx context.Context, tweetID uint64) (domain.Tweet, error) {
+	//TODO implement me
+	panic("implement me")
+}

@@ -28,7 +28,11 @@ func StartContainer() (*Container, error) {
 	tweetService := service.NewTweetService(tweetRepository)
 	tweetHandler := http.NewTweetHandler(tweetService)
 
-	router, err := http.NewRouter(*userHandler, *tweetHandler)
+	followerRepository := database.NewFollowerRepository(db)
+	followerService := service.NewFollowerService(followerRepository, userService)
+	followerHandler := http.NewFollowerHandler(followerService)
+
+	router, err := http.NewRouter(*userHandler, *tweetHandler, *followerHandler)
 	if err != nil {
 		return nil, err
 	}

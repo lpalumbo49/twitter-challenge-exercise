@@ -50,7 +50,7 @@ func (h *UserHandler) CreateUser(ctx *gin.Context) {
 		return
 	}
 
-	ctx.JSON(http.StatusCreated, dto.MapUserToCreateUserResponse(user))
+	ctx.JSON(http.StatusCreated, dto.MapUserToUserResponse(user))
 }
 
 func (h *UserHandler) UpdateUser(ctx *gin.Context) {
@@ -98,7 +98,7 @@ func (h *UserHandler) UpdateUser(ctx *gin.Context) {
 		return
 	}
 
-	ctx.JSON(http.StatusOK, dto.MapUserToUpdateUserResponse(user))
+	ctx.JSON(http.StatusOK, dto.MapUserToUserResponse(user))
 }
 
 func (h *UserHandler) GetUserByID(ctx *gin.Context) {
@@ -106,15 +106,15 @@ func (h *UserHandler) GetUserByID(ctx *gin.Context) {
 
 	userID, err := strconv.ParseUint(idParam, 10, 64)
 	if err != nil {
-		pkg.ReturnHttpError(ctx, pkg.NewBadRequestError("invalid user_id"))
+		pkg.ReturnHttpError(ctx, pkg.NewBadRequestError("invalid user id"))
 		return
 	}
 
 	user, err := h.service.GetUserByID(ctx, userID)
 	if err != nil {
-		pkg.ReturnHttpError(ctx, pkg.NewInternalServerError(fmt.Sprintf("error searching for user_id %d", userID), err))
+		pkg.ReturnHttpError(ctx, pkg.NewInternalServerError(fmt.Sprintf("error searching for user id %d", userID), err))
 		return
 	}
 
-	ctx.JSON(http.StatusOK, dto.MapUserToCreateUserResponse(user))
+	ctx.JSON(http.StatusOK, dto.MapUserToUserResponse(user))
 }

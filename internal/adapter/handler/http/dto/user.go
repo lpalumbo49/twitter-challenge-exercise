@@ -5,7 +5,6 @@ import (
 	"twitter-challenge-exercise/internal/core/domain"
 )
 
-// --------------------------------------------------------------------------------
 type CreateUserRequest struct {
 	Name     string `json:"name" validate:"required,max=32"`
 	Surname  string `json:"surname" validate:"required,max=32"`
@@ -14,7 +13,7 @@ type CreateUserRequest struct {
 	Username string `json:"username" validate:"required,min=3,max=32"`
 }
 
-type CreateUserResponse struct {
+type UserResponse struct {
 	ID        uint64    `json:"id"`
 	Name      string    `json:"name"`
 	Surname   string    `json:"surname"`
@@ -34,8 +33,8 @@ func MapCreateUserRequestToUser(request CreateUserRequest) domain.User {
 	}
 }
 
-func MapUserToCreateUserResponse(user domain.User) CreateUserResponse {
-	return CreateUserResponse{
+func MapUserToUserResponse(user domain.User) UserResponse {
+	return UserResponse{
 		ID:        user.ID,
 		Name:      user.Name,
 		Surname:   user.Surname,
@@ -54,33 +53,11 @@ type UpdateUserRequest struct {
 	Username string `json:"username" validate:"required,min=3,max=32"`
 }
 
-type UpdateUserResponse struct {
-	ID        uint64    `json:"id"`
-	Name      string    `json:"name"`
-	Surname   string    `json:"surname"`
-	Email     string    `json:"email"`
-	Username  string    `json:"username"`
-	CreatedAt time.Time `json:"created_at"`
-	UpdatedAt time.Time `json:"updated_at"`
-}
-
 func MapUpdateUserRequestToUser(request UpdateUserRequest) domain.User {
 	return domain.User{
 		ID:       request.ID,
 		Name:     request.Name,
 		Surname:  request.Surname,
 		Username: request.Username,
-	}
-}
-
-func MapUserToUpdateUserResponse(user domain.User) UpdateUserResponse {
-	return UpdateUserResponse{
-		ID:        user.ID,
-		Name:      user.Name,
-		Surname:   user.Surname,
-		Email:     user.Email,
-		Username:  user.Username,
-		CreatedAt: user.CreatedAt,
-		UpdatedAt: user.UpdatedAt,
 	}
 }

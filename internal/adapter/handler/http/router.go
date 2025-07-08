@@ -6,7 +6,7 @@ type Router struct {
 	*gin.Engine
 }
 
-func NewRouter(userHandler UserHandler, tweetHandler TweetHandler) (*Router, error) {
+func NewRouter(userHandler UserHandler, tweetHandler TweetHandler, followerHandler FollowerHandler) (*Router, error) {
 	router := gin.Default()
 
 	// Tweets
@@ -35,12 +35,12 @@ func NewRouter(userHandler UserHandler, tweetHandler TweetHandler) (*Router, err
 	routerGroup.PUT("/user/:id", userHandler.UpdateUser)
 
 	routerGroup.POST("/tweet", tweetHandler.CreateTweet)
-	// routerGroup.GET("/tweet/:id", tweetHandler.GetTweetByID)
-	// routerGroup.PUT("/tweet/:id", tweetHandler.UpdateTweet)
+	routerGroup.GET("/tweet/:id", tweetHandler.GetTweetByID)
+	routerGroup.PUT("/tweet/:id", tweetHandler.UpdateTweet)
 
 	// routerGroup.GET("/timeline", timelineHandler.GetTimelineByUserID)
 
-	// routerGroup.POST("/follower", followerHandler.CreateFollower)
+	routerGroup.POST("/follower", followerHandler.CreateFollower)
 
 	return &Router{router}, nil
 }
