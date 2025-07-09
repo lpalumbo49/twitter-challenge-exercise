@@ -1,4 +1,4 @@
-CREATE TABLE user
+CREATE TABLE IF NOT EXISTS user
 (
     id          INT AUTO_INCREMENT PRIMARY KEY,
     name        VARCHAR(32) NOT NULL,
@@ -12,7 +12,7 @@ CREATE TABLE user
     CONSTRAINT  unique_user_username UNIQUE (username)
 );
 
-CREATE TABLE tweet
+CREATE TABLE IF NOT EXISTS tweet
 (
     id         INT AUTO_INCREMENT PRIMARY KEY,
     user_id    INT          NOT NULL,
@@ -22,7 +22,7 @@ CREATE TABLE tweet
     CONSTRAINT fk_tweet_user_id FOREIGN KEY (user_id) REFERENCES user (id)
 );
 
-CREATE TABLE follower
+CREATE TABLE IF NOT EXISTS follower
 (
     user_id             INT      NOT NULL,
     followed_by_user_id INT      NOT NULL,
