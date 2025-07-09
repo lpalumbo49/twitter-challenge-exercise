@@ -31,5 +31,3 @@ CREATE TABLE follower
     CONSTRAINT fk_follower_user_id FOREIGN KEY (user_id) REFERENCES user (id),
     CONSTRAINT fk_follower_followed_by_user_id FOREIGN KEY (followed_by_user_id) REFERENCES user (id)
 );
-
--- TODO LP: indexes?

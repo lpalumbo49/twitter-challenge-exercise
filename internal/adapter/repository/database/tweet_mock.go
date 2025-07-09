@@ -2,21 +2,19 @@ package database
 
 import (
 	"context"
-	"twitter-challenge-exercise/internal/core/domain"
-	"twitter-challenge-exercise/internal/core/port"
-
 	"github.com/stretchr/testify/mock"
+	"twitter-challenge-exercise/internal/core/domain"
 )
 
-type tweetMockRepository struct {
+type TweetMockRepository struct {
 	mock.Mock
 }
 
-func NewTweetMockRepository() port.TweetRepository {
-	return &tweetMockRepository{}
+func NewTweetMockRepository() *TweetMockRepository {
+	return &TweetMockRepository{}
 }
 
-func (t *tweetMockRepository) CreateTweet(ctx context.Context, tweet domain.Tweet) (domain.Tweet, error) {
+func (t *TweetMockRepository) CreateTweet(ctx context.Context, tweet domain.Tweet) (domain.Tweet, error) {
 	args := t.Called(ctx, tweet)
 
 	responseTweet, _ := args.Get(0).(domain.Tweet)
@@ -25,12 +23,20 @@ func (t *tweetMockRepository) CreateTweet(ctx context.Context, tweet domain.Twee
 	return responseTweet, err
 }
 
-func (t *tweetMockRepository) UpdateTweet(ctx context.Context, tweet domain.Tweet) (domain.Tweet, error) {
-	//TODO implement me
-	panic("implement me")
+func (t *TweetMockRepository) UpdateTweet(ctx context.Context, tweet domain.Tweet) (domain.Tweet, error) {
+	args := t.Called(ctx, tweet)
+
+	responseTweet, _ := args.Get(0).(domain.Tweet)
+	err, _ := args.Get(1).(error)
+
+	return responseTweet, err
 }
 
-func (t *tweetMockRepository) GetTweetByID(ctx context.Context, tweetID uint64) (domain.Tweet, error) {
-	//TODO implement me
-	panic("implement me")
+func (t *TweetMockRepository) GetTweetByID(ctx context.Context, tweetID uint64) (domain.Tweet, error) {
+	args := t.Called(ctx, tweetID)
+
+	responseTweet, _ := args.Get(0).(domain.Tweet)
+	err, _ := args.Get(1).(error)
+
+	return responseTweet, err
 }

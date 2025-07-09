@@ -63,9 +63,9 @@ func (h *TweetHandler) UpdateTweet(ctx *gin.Context) {
 
 	idParam := ctx.Param("id")
 
-	userID, err := strconv.ParseUint(idParam, 10, 64)
+	tweetID, err := strconv.ParseUint(idParam, 10, 64)
 	if err != nil {
-		pkg.ReturnHttpError(ctx, pkg.NewBadRequestError("invalid user_id"))
+		pkg.ReturnHttpError(ctx, pkg.NewBadRequestError("invalid tweet id"))
 		return
 	}
 
@@ -84,12 +84,12 @@ func (h *TweetHandler) UpdateTweet(ctx *gin.Context) {
 		return
 	}
 
-	if userID != request.ID {
-		pkg.ReturnHttpError(ctx, pkg.NewForbiddenError("mismatch between user_id and request user_id"))
+	if tweetID != request.ID {
+		pkg.ReturnHttpError(ctx, pkg.NewForbiddenError("mismatch between tweet id and request tweet id"))
 		return
 	}
 
-	if userID != ctx.GetUint64("user_id") {
+	if request.UserID != ctx.GetUint64("user_id") {
 		pkg.ReturnHttpError(ctx, pkg.NewForbiddenError("user_id not authorized"))
 		return
 	}
