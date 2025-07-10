@@ -25,7 +25,7 @@ func (h *TweetHandler) CreateTweet(ctx *gin.Context) {
 	var request dto.CreateTweetRequest
 
 	if err := ctx.ShouldBindJSON(&request); err != nil {
-		pkg.ReturnHttpError(ctx, pkg.NewInternalServerError("error in create tweet request binding", err))
+		pkg.ReturnHttpError(ctx, pkg.NewBadRequestError("invalid body in create tweet request binding"))
 		return
 	}
 
@@ -70,7 +70,7 @@ func (h *TweetHandler) UpdateTweet(ctx *gin.Context) {
 	}
 
 	if err := ctx.ShouldBindJSON(&request); err != nil {
-		pkg.ReturnHttpError(ctx, pkg.NewInternalServerError("error in update tweet request binding", err))
+		pkg.ReturnHttpError(ctx, pkg.NewBadRequestError("invalid body in update tweet request binding"))
 		return
 	}
 

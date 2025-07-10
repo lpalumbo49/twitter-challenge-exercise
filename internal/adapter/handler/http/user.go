@@ -25,7 +25,7 @@ func (h *UserHandler) CreateUser(ctx *gin.Context) {
 	var request dto.CreateUserRequest
 
 	if err := ctx.ShouldBindJSON(&request); err != nil {
-		pkg.ReturnHttpError(ctx, pkg.NewInternalServerError("error in create user request binding", err))
+		pkg.ReturnHttpError(ctx, pkg.NewBadRequestError("invalid body in create user request binding"))
 		return
 	}
 
@@ -65,7 +65,7 @@ func (h *UserHandler) UpdateUser(ctx *gin.Context) {
 	}
 
 	if err := ctx.ShouldBindJSON(&request); err != nil {
-		pkg.ReturnHttpError(ctx, pkg.NewInternalServerError("error in update user request binding", err))
+		pkg.ReturnHttpError(ctx, pkg.NewBadRequestError("invalid body in update user request binding"))
 		return
 	}
 

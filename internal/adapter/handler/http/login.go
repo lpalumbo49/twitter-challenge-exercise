@@ -22,7 +22,7 @@ func (h *LoginHandler) UserLogin(ctx *gin.Context) {
 	var request dto.LoginRequest
 
 	if err := ctx.ShouldBindJSON(&request); err != nil {
-		pkg.ReturnHttpError(ctx, pkg.NewInternalServerError("error in login request binding", err))
+		pkg.ReturnHttpError(ctx, pkg.NewBadRequestError("invalid body in login request binding"))
 		return
 	}
 

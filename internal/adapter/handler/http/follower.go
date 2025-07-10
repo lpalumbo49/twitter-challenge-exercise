@@ -22,7 +22,7 @@ func (h *FollowerHandler) CreateFollower(ctx *gin.Context) {
 	var request dto.CreateFollowerRequest
 
 	if err := ctx.ShouldBindJSON(&request); err != nil {
-		pkg.ReturnHttpError(ctx, pkg.NewInternalServerError("error in create follower request binding", err))
+		pkg.ReturnHttpError(ctx, pkg.NewBadRequestError("invalid body in create follower request binding"))
 		return
 	}
 

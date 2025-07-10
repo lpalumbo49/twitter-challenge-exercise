@@ -17,6 +17,40 @@ import (
 	"twitter-challenge-exercise/internal/core/service"
 )
 
+func TestTweetHandler_UpdateTweet_InvalidRequestBody(t *testing.T) {
+	gin.SetMode(gin.TestMode)
+
+	testTweet := getTestTweet()
+
+	tweetRepository := database.NewTweetMockRepository()
+	tweetService := service.NewTweetService(tweetRepository)
+	tweetHandler := handler.NewTweetHandler(tweetService)
+
+	router := gin.Default()
+	router.PUT("/api/v1/tweet/:id", tweetHandler.UpdateTweet)
+
+	requestBody := map[string]interface{}{
+		"id":      "49", // Number, but string
+		"user_id": testTweet.UserID,
+		"text":    testTweet.Text,
+	}
+	jsonBody, _ := json.Marshal(requestBody)
+
+	request, _ := http.NewRequest(http.MethodPut, fmt.Sprintf("/api/v1/tweet/%d", testTweet.ID), bytes.NewBuffer(jsonBody))
+	request.Header.Set("Content-Type", "application/json")
+
+	response := httptest.NewRecorder()
+	router.ServeHTTP(response, request)
+
+	var responseMap map[string]interface{}
+	_ = json.Unmarshal(response.Body.Bytes(), &responseMap)
+
+	assert.Equal(t, http.StatusBadRequest, response.Code)
+	assert.Equal(t, "invalid body in update tweet request binding", responseMap["message"])
+
+	tweetRepository.AssertExpectations(t)
+}
+
 func TestTweetHandler_UpdateTweet_TweetIDMismatch(t *testing.T) {
 	gin.SetMode(gin.TestMode)
 
