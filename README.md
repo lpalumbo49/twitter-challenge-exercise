@@ -400,7 +400,7 @@ Si bien esto es funcional y cumple con los requerimientos de negocio, a largo pl
 
 Por ende, una posible solución es separar el tráfico en diferentes grupos de instancias de aplicaciones (que denominaremos _scopes_), basándonos en el tipo de operación (lectura, escritura, o búsqueda masiva), y balancear el tráfico según corresponda. Las instancias de los scopes pueden escalar horizontalmente en base a la demanda de tráfico que reciban.
 
-Además, operaciones como la obtención del timeline pueden llegar a ser muy costosas si la cantidad de información es amplia. Sería más eficiente en lectura poder leer un timeline ya resuelto previamente, por lo que un enfoque es ir resolviendo el timeline de usuarios asincrónicamente, y almacenándolo luego.
+Además, operaciones como la obtención del timeline pueden llegar a ser muy costosas si la cantidad de información es amplia. Sería más eficiente en lectura poder leer un timeline ya resuelto previamente, por lo que un enfoque es ir resolviendo el timeline de usuarios asincrónicamente, y almacenándolo luego. El timeline también puede implementar una lógica de paginación, para evitar consultar una gran cantidad de datos en una sola petición.
 
 La complejidad que se agrega es la necesidad de mantener sincronizados los datos en todos los frentes, pero también depende del grado de consistencia eventual que se esté dispuesto a aceptar.
 
