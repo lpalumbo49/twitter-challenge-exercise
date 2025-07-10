@@ -18,7 +18,7 @@ func Auth() gin.HandlerFunc {
 
 		if len(bearer) < 2 {
 			ctx.JSON(http.StatusUnauthorized, gin.H{
-				"msg": "Authorization header format is invalid",
+				"message": "Authorization header format is invalid",
 			})
 
 			ctx.Abort()
@@ -28,7 +28,7 @@ func Auth() gin.HandlerFunc {
 		claims, err := pkg.VerifyJWTToken(bearer[1])
 		if err != nil {
 			ctx.JSON(http.StatusUnauthorized, gin.H{
-				"msg": "Could not verify access token",
+				"message": "Could not verify access token",
 			})
 
 			ctx.Abort()
