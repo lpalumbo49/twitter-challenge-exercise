@@ -303,10 +303,30 @@ POST /api/v1/follower
   ``` json
   {
     "user_id": 50,
-    "followed_by_user_id": 49.
+    "followed_by_user_id": 49,
     "created_at": "2025-07-09T00:00:00Z"    
   }
   ```
+### Errores
+
+En caso de que una respuesta no sea satisfactoria, se devolverá el siguiente formato:
+#### Response
+  ``` json
+  {
+    "message": "descripción del error"
+  }
+  ```
+
+### Response codes
+
+* `200` OK. Respuesta correcta para todo tipo de requests, excepto los de creación
+* `201` Created. Respuesta correcta para solicitudes de creación (`POST`)
+* `400` Bad request. Respuesta ante datos erróneos que envía el cliente en una solicitud
+* `401` Unauthorized. Respuesta de endpoints privados, en los cuales el cliente no se ha autenticado
+* `403` Forbidden. Respuesta que indica que el cliente no se encuentra autorizado a realizar determinada acción
+* `404` Not found. Respuesta ante solicitudes de búsqueda que no arrojan resultados
+* `500` Internal server error. Respuesta ante errores internos del sistema. No es un error del cliente
+
 ## 📁 Estructura del proyecto
 
    ```sh
@@ -370,7 +390,39 @@ Este proyecto incluye algunos ejemplos de tests unitarios para los servicios de 
 
 ## 🏗️ Arquitectura
 
-TODO: explicación de la arquitectura
+La arquitectura actual de la solución consta en un servicio web, que es llamado desde un cliente. El servicio se comunica con una única instancia de base de datos, y todas las operaciones son sincrónicas.
+Se eligió implementar una base de datos MySQL por su sencillez de implementación, y su performance en lecturas. A medida que el sistema escale en tamaño, podrá llegar a ser más conveniente la utilización de PostgreSQL, con mayor performance para queries complejas y robustez en datasets grandes.
+
+
+![actual_architecture.png](docs/actual_architecture.png)
+
+Si bien esto es funcional y cumple con los requerimientos de negocio, a largo plazo no es escalable en el tiempo debido a que está todo concentrado en un solo punto de falla. Una afectación en la base de datos dejaría sin sistema a todos los usuarios, o mismo una ráfaga de tráfico de operaciones de escritura terminaría repercutiendo en la performance de operaciones de lectura, por dar unos ejemplos.
+
+Por ende, una posible solución es separar el tráfico en diferentes grupos de instancias de aplicaciones (que denominaremos _scopes_), basándonos en el tipo de operación (lectura, escritura, o búsqueda masiva), y balancear el tráfico según corresponda. Las instancias de los scopes pueden escalar horizontalmente en base a la demanda de tráfico que reciban.
+
+Además, operaciones como la obtención del timeline pueden llegar a ser muy costosas si la cantidad de información es amplia. Sería más eficiente en lectura poder leer un timeline ya resuelto previamente, por lo que un enfoque es ir resolviendo el timeline de usuarios asincrónicamente, y almacenándolo luego.
+
+La complejidad que se agrega es la necesidad de mantener sincronizados los datos en todos los frentes, pero también depende del grado de consistencia eventual que se esté dispuesto a aceptar.
+
+![proposed_architecture.png](docs/proposed_architecture.png)
+
+En el contexto de este ejercicio los tweets no pueden almacenar imágenes o videos, pero en caso de poder hacerlo se podría agregar un CDN, para la rápida distribución multimedia a usuarios.
+Y además, el scope de escritura se encargaría de guardar las mismas en un servicio de Media Store.
+
+### Descripción de los componentes
+* Load balancer: Balanceador de carga, que también cumple funciones de API Gateway. Se encarga de redirigir el tráfico al scope que corresponda.
+* Read scope: Operaciones de lectura, de tweets, usuarios y timeline. Se encarga también de actualizar la caché de búsqueda. El orden de búsqueda de información sería el siguiente:
+  1) Caché
+  2) Key-Value
+  3) Base de datos réplica
+* Write scope: Operaciones de escritura, de tweets, usuarios y timeline. Envía eventos asincrónicos por cola de mensajería, para mantener actualizados los otros tipos de storage.
+* Search scope: Búsquedas de datos, según filtros más avanzados de búsqueda.
+* Base de datos (primary): Fuente de verdad principal de la información.
+* Base de datos réplica (secondary): Réplica de la base principal, que se utiliza para alivianarle la carga, y solo acepta operaciones de lectura.
+* Cache: Mejora la velocidad de respuesta de las lecturas de tweets y usuarios más utilizados.
+* Key-Value (NoSQL): Almacena los timelines precalculados de los usuarios, para su rápida obtención.
+* Full Text Search: Storage optimizado para búsquedas según diversos criterios (email, nombre de usuario, etc)
+* Queue: Broker de mensajería que se encarga de comunicar eventos de actualizaciones asincrónicas. Implementa lógica de reintentos.
 
 ## 🤝 Contacto
 
